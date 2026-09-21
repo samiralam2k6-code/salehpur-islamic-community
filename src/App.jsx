@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { toHijri, toGregorian } from 'hijri-converter'
 import './App.css'
 console.log("SUPABASE KEY LOADED:", !!import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY)
 console.log("SUPABASE URL:", import.meta.env.VITE_SUPABASE_URL)
@@ -25,7 +26,7 @@ function App() {
   const [expenses, setExpenses] = useState([])
   const [projects, setProjects] = useState([])
   const [gallery, setGallery] = useState([])
-
+  const [calendar, setCalendar] = useState([])
   const [members, setMembers] = useState([])
   const [payments, setPayments] = useState([])
   const [salary, setSalary] = useState(9000)
@@ -72,6 +73,7 @@ function App() {
       expensesResult,
       projectsResult,
       galleryResult,
+      calendarResult,
       membersResult,
       paymentsResult,
       salaryResult,
@@ -110,6 +112,11 @@ function App() {
         .from('gallery')
         .select('*')
         .order('id', { ascending: false }),
+      
+      supabase
+  .from('islamic_calendar')
+  .select('*')
+  .order('event_date', { ascending: true }),  
 
       supabase
         .from('members')
@@ -136,6 +143,7 @@ function App() {
     setExpenses(expensesResult.data || [])
     setProjects(projectsResult.data || [])
     setGallery(galleryResult.data || [])
+    setCalendar(calendarResult.data || [])
     setMembers(membersResult.data || [])
     setPayments(paymentsResult.data || [])
 
@@ -203,6 +211,80 @@ function App() {
       year: 'numeric',
     }
   ).format(new Date())
+  const indianDate = new Intl.DateTimeFormat('en-IN', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+}).format(new Date())
+
+  const getIslamicEvents = (hijriYear) => {
+  const events = [
+    {
+      title: 'Ramadan',
+      hijriMonth: 9,
+      hijriDay: 1,
+      description: 'Ramadan ka mubarak mahina.',
+    },
+    {
+      title: 'Eid-ul-Fitr',
+      hijriMonth: 10,
+      hijriDay: 1,
+      description: 'Ramadan ke baad Eid-ul-Fitr.',
+    },
+    {
+      title: 'Eid-ul-Adha / Bakrid',
+      hijriMonth: 12,
+      hijriDay: 10,
+      description: 'Eid-ul-Adha — Qurbani ka din.',
+    },
+    {
+      title: 'Muharram / Ashura',
+      hijriMonth: 1,
+      hijriDay: 10,
+      description: 'Muharram ka mahina aur Ashura.',
+    },
+    {
+      title: '12 Rabi-ul-Awwal / Eid Milad-un-Nabi ﷺ',
+      hijriMonth: 3,
+      hijriDay: 12,
+      description: '12 Rabi-ul-Awwal — Eid Milad-un-Nabi ﷺ.',
+    },
+  ]
+
+  return events.map((event) => {
+    const gregorian = toGregorian(
+      hijriYear,
+      event.hijriMonth,
+      event.hijriDay
+    )
+
+    return {
+      ...event,
+      date: `${gregorian.gy}-${String(gregorian.gm).padStart(2, '0')}-${String(gregorian.gd).padStart(2, '0')}`,
+    }
+  })
+}
+const today = new Date()
+
+const currentHijri = toHijri(
+  today.getFullYear(),
+  today.getMonth() + 1,
+  today.getDate()
+)
+
+const automaticIslamicEvents = getIslamicEvents(
+  currentHijri.hy
+)
+
+ const allIslamicEvents = [
+  ...calendar,
+  ...automaticIslamicEvents.map((event, index) => ({
+    id: `auto-${index}`,
+    title: event.title,
+    event_date: event.date,
+    description: event.description,
+  })),
+]
 
   // =========================
   // LOADING
@@ -374,17 +456,27 @@ function App() {
               gallery.map((item) => (
                 <div className="gallery-card" key={item.id}>
                   {item.image_path ? (
-                    <img
-  src={item.image_path}
-  alt={item.title}
-  style={{
-    width: '100%',
-    height: '220px',
-    objectFit: 'cover',
-    borderRadius: '12px',
-    display: 'block',
+                    <div
+  onClick={() => {
+    window.location.href = item.image_path
   }}
-/>
+  style={{
+    cursor: 'pointer',
+  }}
+>
+  <img
+    src={item.image_path}
+    alt={item.title}
+    style={{
+      width: '100%',
+      height: 'auto',
+      maxHeight: '500px',
+      objectFit: 'contain',
+      borderRadius: '12px',
+      display: 'block',
+    }}
+  />
+</div>
                   ) : (
                     <div className="gallery-placeholder">
                       📸
@@ -429,19 +521,38 @@ function App() {
         </button>
 
         <section className="section">
-          <h2>🌙 Islamic Calendar</h2>
+  <h2>🌙 Islamic Calendar</h2>
 
-          <div className="calendar-box">
-            <h3>Hijri Date</h3>
-            <p>{hijriDate}</p>
+  <div className="calendar-box">
+    <h3>Hijri Date</h3>
+    <p>{hijriDate}</p>
+    <h3>Indian Date</h3>
+<p>{indianDate}</p>
 
-            <h3>Important Islamic Dates</h3>
+    <h3>Important Islamic Dates</h3>
 
-            <p>
-              Ramadan • Eid-ul-Fitr • Eid-ul-Adha • Muharram
-            </p>
-          </div>
-        </section>
+    {allIslamicEvents.length === 0 ? (
+      <p>No Islamic events added yet.</p>
+    ) : (
+      allIslamicEvents.map((event) => (
+        <div
+          key={event.id}
+          style={{
+            marginBottom: '16px',
+            paddingBottom: '12px',
+            borderBottom: '1px solid #ddd',
+          }}
+        >
+          <h4>🌙 {event.title}</h4>
+
+          <p>📅 {event.event_date}</p>
+
+          <p>📝 {event.description}</p>
+        </div>
+      ))
+    )}
+  </div>
+</section>
       </div>
     )
   }
@@ -466,6 +577,7 @@ function App() {
         expenses={expenses}
         projects={projects}
         gallery={gallery}
+        calendar={calendar}
         members={members}
         payments={payments}
         salary={salary}
@@ -761,7 +873,9 @@ function App() {
     borderRadius: '12px',
     display: 'block',
     margin: '0 auto',
+    
   }}
+  onClick={() => window.open(item.image_path, '_blank')}
 />
                 ) : (
                   <div className="gallery-placeholder">
@@ -1112,6 +1226,7 @@ function AdminPanel({
   expenses,
   projects,
   gallery,
+  calendar,
   members,
   payments,
   salary,
@@ -1880,6 +1995,160 @@ const addPayment = async (e) => {
   </div>
 ))}
         </div>
+        <div className="project-card">
+  <h3>🌙 Islamic Calendar</h3>
+
+  {/* Add Event */}
+  <form
+    onSubmit={async (e) => {
+      e.preventDefault()
+
+      const title = e.currentTarget.calendarTitle.value.trim()
+      const date = e.currentTarget.calendarDate.value
+      const description =
+        e.currentTarget.calendarDescription.value.trim()
+
+      if (!title || !date || !description) {
+        alert('Event, date aur detailed information enter karo.')
+        return
+      }
+
+      const { error } = await supabase
+        .from('islamic_calendar')
+        .insert({
+          title,
+          event_date: date,
+          description,
+        })
+
+      if (error) {
+        alert(error.message)
+        return
+      }
+
+      e.currentTarget.reset()
+      setMessage('Calendar event added.')
+      await reload()
+    }}
+  >
+    <input
+      name="calendarTitle"
+      type="text"
+      placeholder="Event name"
+      required
+    />
+
+    <input
+      name="calendarDate"
+      type="date"
+      required
+    />
+
+    <textarea
+      name="calendarDescription"
+      placeholder="Detailed information"
+      rows="4"
+      required
+    />
+
+    <button type="submit">
+      ➕ Add Event
+    </button>
+  </form>
+
+  {/* Existing Events */}
+  {calendar.map((event) => (
+    <div
+      key={event.id}
+      className="expense-row"
+    >
+      <div>
+        <strong>🌙 {event.title}</strong>
+
+        <p>📅 {event.event_date}</p>
+
+        <p>📝 {event.description}</p>
+      </div>
+
+      <button
+        type="button"
+        onClick={async () => {
+          const title = prompt(
+            'Event name:',
+            event.title
+          )
+
+          if (title === null || !title.trim()) return
+
+          const date = prompt(
+            'Date (YYYY-MM-DD):',
+            event.event_date || ''
+          )
+
+          if (date === null || !date.trim()) return
+
+          const description = prompt(
+            'Detailed information:',
+            event.description || ''
+          )
+
+          if (
+            description === null ||
+            !description.trim()
+          ) {
+            return
+          }
+
+          const { error } = await supabase
+            .from('islamic_calendar')
+            .update({
+              title: title.trim(),
+              event_date: date.trim(),
+              description: description.trim(),
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', event.id)
+
+          if (error) {
+            alert(error.message)
+            return
+          }
+
+          setMessage('Calendar event updated.')
+          await reload()
+        }}
+      >
+        ✏️ Edit
+      </button>
+
+      <button
+        type="button"
+        onClick={async () => {
+          const confirmDelete = window.confirm(
+            'Kya aap is event ko delete karna chahte hain?'
+          )
+
+          if (!confirmDelete) return
+
+          const { error } = await supabase
+            .from('islamic_calendar')
+            .delete()
+            .eq('id', event.id)
+
+          if (error) {
+            alert(error.message)
+            return
+          }
+
+          setMessage('Calendar event deleted.')
+          await reload()
+        }}
+      >
+        🗑️ Delete
+      </button>
+    </div>
+  ))}
+</div>
 
         <div className="project-card">
   <h3>📸 Gallery</h3>
