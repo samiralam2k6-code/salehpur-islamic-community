@@ -518,3 +518,150 @@ footer {
     font-size: 26px;
   }
 }
+.menu-button {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1000;
+  background: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.menu-button {
+  display: inline-block;
+  background: white;
+  color: #087f5b;
+  border: 2px solid #087f5b;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: white;
+  z-index: 2000;
+  padding: 25px 20px;
+  box-shadow: 3px 0 15px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+
+.side-menu h2 {
+  color: #087f5b;
+  margin-top: 40px;
+  margin-bottom: 25px;
+}
+
+.side-menu a {
+  display: block;
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+  padding: 14px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.side-menu a:hover {
+  background: #f1f8f5;
+  color: #087f5b;
+}
+
+.menu-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #333;
+}
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1500;
+}
+.side-menu {
+  width: 300px;
+  padding: 25px 20px;
+  box-sizing: border-box;
+}
+
+.side-menu h2 {
+  text-align: center;
+  color: #087f5b;
+  margin-top: 40px;
+  margin-bottom: 25px;
+}
+
+.side-menu a {
+  margin: 5px 0;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.menu-close {
+  color: #087f5b;
+  font-weight: bold;
+}
+.calendar-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.calendar-box th,
+.calendar-box td {
+  border: 1px solid #999;
+  padding: 10px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.calendar-box th {
+  background: #f1f8f5;
+  font-weight: bold;
+}
+
+.calendar-box tr:nth-child(even) {
+  background: #fafafa;
+}
+.side-menu .menu-admin-button {
+  display: block;
+  width: 100%;
+  background: white;
+  color: #333;
+  border: none;
+  border-bottom: 1px solid #eee;
+  padding: 14px 10px;
+  margin: 5px 0;
+  text-align: left;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.side-menu .menu-admin-button:hover {
+  background: #f1f8f5;
+  color: #087f5b;
+}
+.side-menu a {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+}
