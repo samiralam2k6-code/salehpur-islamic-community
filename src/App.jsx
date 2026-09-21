@@ -743,9 +743,16 @@ function App() {
               <div className="gallery-card" key={item.id}>
                 {item.image_path ? (
                   <img
-                    src={item.image_path}
-                    alt={item.title}
-                  />
+  src={item.image_path}
+  alt={item.title}
+  style={{
+    width: '100%',
+    height: '220px',
+    objectFit: 'cover',
+    borderRadius: '12px',
+    display: 'block',
+  }}
+/>
                 ) : (
                   <div className="gallery-placeholder">
                     📸
