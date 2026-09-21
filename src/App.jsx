@@ -754,10 +754,13 @@ function App() {
   alt={item.title}
   style={{
     width: '100%',
-    height: '220px',
-    objectFit: 'cover',
+    height: 'auto',
+    maxHeight: '500px',
+    objectFit: 'contain',
+    objectPosition: 'center',
     borderRadius: '12px',
     display: 'block',
+    margin: '0 auto',
   }}
 />
                 ) : (
